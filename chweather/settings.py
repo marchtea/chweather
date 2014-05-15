@@ -11,5 +11,15 @@ BOT_NAME = 'chweather'
 SPIDER_MODULES = ['chweather.spiders']
 NEWSPIDER_MODULE = 'chweather.spiders'
 
+
+ITEM_PIPELINES = {
+    'chweather.pipelines.ChweatherPipeline': 400,
+    'chweather.pipelines.MemCachedPipeline': 500,
+}
+
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'chweather (+http://www.yourdomain.com)'
+
+
+#Settings For ChWeather
+MEMCACHED_ADDRESS = '127.0.0.1:11211'

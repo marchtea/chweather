@@ -8,4 +8,9 @@ from scrapy.item import Item, Field
 class ChweatherItem(Item):
     # define the fields for your item here like:
     # name = Field()
-    pass
+    city = Field()
+    cityId = Field()
+    temp = Field()
+    wd = Field()
+    ws = Field()
+    updateTime = Field()
