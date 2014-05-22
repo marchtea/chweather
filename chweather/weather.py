@@ -17,6 +17,7 @@ class next6Item:
     updateTime = ''
 
 class next7Item:
+    duration = ''
     daystats = ''
     daytemp = ''
     daywd = ''

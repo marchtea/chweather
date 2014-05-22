@@ -18,8 +18,11 @@ ITEM_PIPELINES = {
 }
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'chweather (+http://www.yourdomain.com)'
-
+USER_AGENT = r'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1964.4 Safari/537.36'
 
 #Settings For ChWeather
 MEMCACHED_ADDRESS = '127.0.0.1:11211'
+
+SPIDER_MIDDLEWARES = {
+'scrapy.contrib.spidermiddleware.referer.RefererMiddleware': None
+}

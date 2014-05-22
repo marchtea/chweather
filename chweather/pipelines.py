@@ -5,11 +5,11 @@
 import memcache
 from chweather import settings
 import json
+from scrapy.exceptions import DropItem
 
 class ChweatherPipeline(object):
 
     def process_item(self, item, spider):
-        print item
         return item
 
 class MemCachedPipeline(object):
@@ -26,6 +26,19 @@ class MemCachedPipeline(object):
             return item
 
         cachedItem = self.mc.get(item['cityId'].encode('ascii'))
+        if spider.name == 'realtime':
+            self.__save_realtime(item, cachedItem)
+        elif spider.name == 'nextseven':
+            self.__save_nextseven(item, cachedItem)
+        else:
+            raise DropItem("Unknown spider's item %s" % item)
+
+        return item
+
+    def __save_nextseven(self, item, cachedItem):
+        pass
+
+    def __save_realtime(self, item, cachedItem):
         if cachedItem:
             cachedItem = json.loads(cachedItem)
             cachedItem['temp'] = item['temp']
@@ -45,4 +58,3 @@ class MemCachedPipeline(object):
             newitem['next7'] = []
             self.mc.set(item['cityId'].encode('ascii'), json.dumps(newitem))
 
-        return item

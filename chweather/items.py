@@ -14,3 +14,14 @@ class ChweatherItem(Item):
     wd = Field()
     ws = Field()
     updateTime = Field()
+
+
+class NextSevenItem(Item):
+    cityId = Field()
+    updateTime = Field()
+    duration = Field()
+    stat = Field()
+    temp = Field()
+    wd = Field()
+    ws = Field()
+
