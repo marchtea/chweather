@@ -25,6 +25,13 @@ class MemCachedPipeline(object):
         if not self.mc:
             return item
 
+        try:
+            if not len(self.mc.get_stats()):
+                return item
+        except Exception as e:
+            print e
+            return item
+
         cachedItem = self.mc.get(item['cityId'].encode('ascii'))
         if spider.name == 'realtime':
             self.__save_realtime(item, cachedItem)
@@ -36,7 +43,29 @@ class MemCachedPipeline(object):
         return item
 
     def __save_nextseven(self, item, cachedItem):
-        pass
+        if cachedItem:
+            cachedItem = json.loads(cachedItem)
+            nextseven = cachedItem['next7']
+            item = dict(item)
+            if len(nextseven) == 0:
+                nextseven.append(item['updateTime'])
+                nextseven.append(item)
+            else:
+                if nextseven[0] == item['updateTime']:
+                    if (len([i for i in nextseven[1:] if i['duration'] == item['duration']])):
+                        return
+                    else:
+                        nextseven.append(item)
+                else:
+                    nextseven = [item['updateTime'], item]
+            cachedItem['next7'] = nextseven
+            self.mc.set(cachedItem['cityId'].encode('ascii'), json.dumps(cachedItem))
+        else:
+            newitem = {}
+            newitem['cityId'] = item['cityId']
+            newitem['next6'] = []
+            newitem['next7'] = [item['udpateTime'], item]
+            self.mc.set(item['cityId'].encode('ascii'), json.dumps(newitem))
 
     def __save_realtime(self, item, cachedItem):
         if cachedItem:
