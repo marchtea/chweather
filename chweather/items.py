@@ -16,7 +16,8 @@ class ChweatherItem(Item):
     updateTime = Field()
 
 
-class NextSevenItem(Item):
+class ForecastItem(Item):
+    type = Field()
     cityId = Field()
     updateTime = Field()
     duration = Field()

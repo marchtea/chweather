@@ -2,7 +2,7 @@
 from scrapy.spider import Spider
 from scrapy.http import Request
 from scrapy.selector import Selector
-from chweather.items import NextSevenItem
+from chweather.items import ForecastItem
 from datetime import date, timedelta
 import json
 import re
@@ -34,9 +34,28 @@ class NextsevenSpider(Spider):
         updateTime = updateTime.group(1)+' '+updateTime.group(3)
         tms = time.strptime(updateTime, '%Y-%m-%d %H:%M')
 
+        #next six forecast
+        if len(sel.xpath('//*[@id="weather6h"]/h1/text()')):
+            for table in sel.xpath('//*[@id="weather6h"]/div/table'):
+                sixitem = ForecastItem()
+                sixitem['type'] = 1
+                sixitem['cityId'] = response.meta['cityId']
+                sixitem['updateTime'] = updateTime
+                sixitem['duration'] = table.xpath('tr[1]/th/text()').extract()[0]
+                sixitem['stat'] = table.xpath('tr[3]/td/a/text()').extract()[0]
+                temphigh = table.xpath('tr[4]/td/a/text()').extract()[0].strip().splitlines()
+                templow = table.xpath('tr[4]/td/span/a/text()').extract()[0].strip().splitlines()
+                sixitem['temp'] = '%d~%d' % (templow[0], temphigh[0])
+                wind = table.xpath('tr[5]/td/b/a/text()').extract()[0].strip().splitlines()
+                sixitem['wd'] = wind[0].strip()
+                sixitem['ws'] = wind[1].strip()
+                yield sixitem
+
+
+        #next seven forecast
         #get tables and iterate through them
         for table in sel.xpath('//*[@id="7d"]/div/table[position()>1]'):
-            newitem = NextSevenItem()
+            newitem = ForecastItem()
             day = table.xpath('tr[1]/td[1]/a/text()')[0].extract()
             day = int(re.match('\d{1,2}', day).group(0))
             #get date
@@ -54,6 +73,7 @@ class NextsevenSpider(Spider):
             nextday = date(year, month, day)+timedelta(1)
             nextday = nextday.strftime('%Y-%m-%d')
 
+            newitem['type'] = 2
             newitem['cityId'] = response.meta['cityId']
             newitem['stat'] = table.xpath('tr[1]/td[4]/a/text()').extract()[0].strip()
             newitem['temp'] = table.xpath('tr[1]/td[5]/a/b/strong/text()').extract()[0].strip()
@@ -70,7 +90,8 @@ class NextsevenSpider(Spider):
 
             if len(table.xpath('tr[2]')):
                 #set night forecast
-                nitem = NextSevenItem()
+                nitem = ForecastItem()
+                nitem['type'] = 2
                 nitem['cityId'] = response.meta['cityId']
                 nitem['stat'] = table.xpath('tr[2]/td[3]/a/text()').extract()[0].strip()
                 nitem['temp'] = table.xpath('tr[2]/td[4]/a/span/strong/text()').extract()[0].strip()

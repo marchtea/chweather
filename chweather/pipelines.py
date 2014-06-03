@@ -36,29 +36,34 @@ class MemCachedPipeline(object):
         if spider.name == 'realtime':
             self.__save_realtime(item, cachedItem)
         elif spider.name == 'nextseven':
-            self.__save_nextseven(item, cachedItem)
+            self.__save_forecast(item, cachedItem)
         else:
             raise DropItem("Unknown spider's item %s" % item)
 
         return item
 
-    def __save_nextseven(self, item, cachedItem):
+    def __save_forecast(self, item, cachedItem):
         if cachedItem:
             cachedItem = json.loads(cachedItem)
-            nextseven = cachedItem['next7']
-            item = dict(item)
-            if len(nextseven) == 0:
-                nextseven.append(item['updateTime'])
-                nextseven.append(item)
-            else:
-                if nextseven[0] == item['updateTime']:
-                    if (len([i for i in nextseven[1:] if i['duration'] == item['duration']])):
-                        return
-                    else:
-                        nextseven.append(item)
+
+
+            if item['type'] == 1:
+                pass
+            elif item['type'] == 2:
+                nextseven = cachedItem['next7']
+                item = dict(item)
+                if len(nextseven) == 0:
+                    nextseven.append(item['updateTime'])
+                    nextseven.append(item)
                 else:
-                    nextseven = [item['updateTime'], item]
-            cachedItem['next7'] = nextseven
+                    if nextseven[0] == item['updateTime']:
+                        if (len([i for i in nextseven[1:] if i['duration'] == item['duration']])):
+                            return
+                        else:
+                            nextseven.append(item)
+                    else:
+                        nextseven = [item['updateTime'], item]
+                cachedItem['next7'] = nextseven
             self.mc.set(cachedItem['cityId'].encode('ascii'), json.dumps(cachedItem))
         else:
             newitem = {}
