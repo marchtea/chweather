@@ -9,7 +9,7 @@ import re
 import time
 
 class NextsevenSpider(Spider):
-    name = "nextseven"
+    name = "forecast"
     allowed_domains = ["www.weather.com.cn"]
     start_urls = ['file:////Users//summer//code//python//scrapy//chweather//test.json']
 
@@ -45,7 +45,7 @@ class NextsevenSpider(Spider):
                 sixitem['stat'] = table.xpath('tr[3]/td/a/text()').extract()[0]
                 temphigh = table.xpath('tr[4]/td/a/text()').extract()[0].strip().splitlines()
                 templow = table.xpath('tr[4]/td/span/a/text()').extract()[0].strip().splitlines()
-                sixitem['temp'] = '%d~%d' % (templow[0], temphigh[0])
+                sixitem['temp'] = '%s~%s' % (templow[0], temphigh[0])
                 wind = table.xpath('tr[5]/td/b/a/text()').extract()[0].strip().splitlines()
                 sixitem['wd'] = wind[0].strip()
                 sixitem['ws'] = wind[1].strip()
