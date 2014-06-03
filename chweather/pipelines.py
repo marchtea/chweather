@@ -46,9 +46,21 @@ class MemCachedPipeline(object):
         if cachedItem:
             cachedItem = json.loads(cachedItem)
 
-
             if item['type'] == 1:
-                pass
+                nextsix = cachedItem['next6']
+                nitem = dict(item)
+                if len(nextsix) == 0:
+                    nextsix.append(nitem['updateTime'])
+                    nextsix.append(nitem)
+                else:
+                    if nextsix[0] == item['updateTime']:
+                        if (len([i for i in nextsix[1:] if i['duration'] == item['duration']])):
+                            return
+                        else:
+                            nextsix.append(nitem)
+                    else:
+                        nextsix = [item['updateTime'], nitem]
+                cachedItem['next6'] = nextsix
             elif item['type'] == 2:
                 nextseven = cachedItem['next7']
                 item = dict(item)
@@ -68,8 +80,10 @@ class MemCachedPipeline(object):
         else:
             newitem = {}
             newitem['cityId'] = item['cityId']
-            newitem['next6'] = []
-            newitem['next7'] = [item['udpateTime'], item]
+            if item['type'] == 1:
+                newitem['next6'] = [item['udpateTime'], dict(item)]
+            else:
+                newitem['next7'] = [item['udpateTime'], dict(item)]
             self.mc.set(item['cityId'].encode('ascii'), json.dumps(newitem))
 
     def __save_realtime(self, item, cachedItem):
